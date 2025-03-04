@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  normalizer:
+    build: .
+    container_name: audio-normalizer
+    volumes:
+      - e:\FTP\_encode\_output\:/watch
+      - e:\FTP\_encode\NORMALIZE\EBU_OUT\:/output
+      - e:\FTP\_encode\NORMALIZE\logs\:/logs
+    restart: always
