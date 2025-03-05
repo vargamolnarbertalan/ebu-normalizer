@@ -32,7 +32,16 @@ while true; do
 
       #echo "Output path: $out_path"
 
-      /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -c:v copy -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -d -v | tee -a "$LOG_FILE"
+      # Check if the input file has an audio stream
+      AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
+
+      # If audio stream exists, normalize audio, otherwise only copy video
+      if [ -n "$AUDIO_STREAM" ]; then
+        /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -c:v copy -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v | tee -a "$LOG_FILE"
+      else
+        # If no audio stream, just copy the video stream
+        ffmpeg -i "$FILE" -c:v copy -c:a copy "$out_path.$OUT_EXTENSION" -loglevel verbose | tee -a "$LOG_FILE"
+      fi
 
       echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE"
 
