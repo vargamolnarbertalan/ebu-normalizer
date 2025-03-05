@@ -11,6 +11,11 @@ AUDIO_BITRATE=$(echo -n "$AUDIO_BITRATE" | tr -d '\r')
 STANDARD=$(echo -n "$STANDARD" | tr -d '\r')
 SAMPLE_RATE=$(echo -n "$SAMPLE_RATE" | tr -d '\r')
 AUDIO_CODEC=$(echo -n "$AUDIO_CODEC" | tr -d '\r')
+VIDEO_ENCODER=$(echo -n "$VIDEO_ENCODER" | tr -d '\r')
+VIDEO_BITRATE=$(echo -n "$VIDEO_BITRATE" | tr -d '\r')
+FRAME_RATE=$(echo -n "$FRAME_RATE" | tr -d '\r')
+RESOLUTION=$(echo -n "$RESOLUTION" | tr -d '\r')
+VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s ${RESOLUTION}"
 
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -37,10 +42,10 @@ while true; do
 
       # If audio stream exists, normalize audio, otherwise only copy video
       if [ -n "$AUDIO_STREAM" ]; then
-        /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -c:v copy -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v | tee -a "$LOG_FILE"
+        /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -e="$VIDEO_OPTIONS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v | tee -a "$LOG_FILE"
       else
         # If no audio stream, just copy the video stream
-        ffmpeg -i "$FILE" -c:v copy -c:a copy "$out_path.$OUT_EXTENSION" -loglevel verbose | tee -a "$LOG_FILE"
+        ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER" -b:v "$VIDEO_BITRATE" -r "$FRAME_RATE" -s "$RESOLUTION" -c:a copy "$out_path.$OUT_EXTENSION" -loglevel verbose | tee -a "$LOG_FILE"
       fi
 
       echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE"
