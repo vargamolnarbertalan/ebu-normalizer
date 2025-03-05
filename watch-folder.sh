@@ -17,12 +17,39 @@ FRAME_RATE=$(echo -n "$FRAME_RATE" | tr -d '\r')
 RESOLUTION=$(echo -n "$RESOLUTION" | tr -d '\r')
 VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s ${RESOLUTION}"
 
+WATCH_DIR2=$(echo -n "$WATCH_DIR2" | tr -d '\r')
+OUTPUT_DIR2=$(echo -n "$OUTPUT_DIR2" | tr -d '\r')
+LOG_FILE2=$(echo -n "$LOG_FILE2" | tr -d '\r')
+PRESET_NAME2=$(echo -n "$PRESET_NAME2" | tr -d '\r')
+OUT_EXTENSION2=$(echo -n "$OUT_EXTENSION2" | tr -d '\r')
+VIDEO_ENCODER2=$(echo -n "$VIDEO_ENCODER2" | tr -d '\r')
+VIDEO_BITRATE2=$(echo -n "$VIDEO_BITRATE2" | tr -d '\r')
+FRAME_RATE2=$(echo -n "$FRAME_RATE2" | tr -d '\r')
+RESOLUTION2=$(echo -n "$RESOLUTION2" | tr -d '\r')
+VIDEO_OPTIONS2="-c:v ${VIDEO_ENCODER2} -b:v ${VIDEO_BITRATE2} -r ${FRAME_RATE2} -s ${RESOLUTION2}"
+
+WATCH_DIR3=$(echo -n "$WATCH_DIR3" | tr -d '\r')
+OUTPUT_DIR3=$(echo -n "$OUTPUT_DIR3" | tr -d '\r')
+LOG_FILE3=$(echo -n "$LOG_FILE3" | tr -d '\r')
+PRESET_NAME3=$(echo -n "$PRESET_NAME3" | tr -d '\r')
+TARGET_LOUDNESS3=$(echo -n "$TARGET_LOUDNESS3" | tr -d '\r')
+OUT_EXTENSION3=$(echo -n "$OUT_EXTENSION3" | tr -d '\r')
+AUDIO_BITRATE3=$(echo -n "$AUDIO_BITRATE3" | tr -d '\r')
+STANDARD3=$(echo -n "$STANDARD3" | tr -d '\r')
+SAMPLE_RATE3=$(echo -n "$SAMPLE_RATE3" | tr -d '\r')
+AUDIO_CODEC3=$(echo -n "$AUDIO_CODEC3" | tr -d '\r')
+
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
+mkdir -p "$(dirname "$LOG_FILE2")"
+mkdir -p "$(dirname "$LOG_FILE3")"
 
 echo "$(date) - Watching directory: $WATCH_DIR for new files..." | tee -a "$LOG_FILE"
+echo "$(date) - Watching directory: $WATCH_DIR2 for new files..." | tee -a "$LOG_FILE2"
+echo "$(date) - Watching directory: $WATCH_DIR3 for new files..." | tee -a "$LOG_FILE3"
 
 while true; do
+  ############### watch dir 1 ##################
   for FILE in "$WATCH_DIR"/*; do
     if [[ -f "$FILE" ]]; then
 
@@ -40,11 +67,11 @@ while true; do
       # Check if the input file has an audio stream
       AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
 
-      # If audio stream exists, normalize audio, otherwise only copy video
+      # If audio stream exists, normalize audio and encode video
       if [ -n "$AUDIO_STREAM" ]; then
         /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -e="$VIDEO_OPTIONS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v | tee -a "$LOG_FILE"
       else
-        # If no audio stream, just copy the video stream
+        # If no audio stream, just encode the video stream
         ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER" -b:v "$VIDEO_BITRATE" -r "$FRAME_RATE" -s "$RESOLUTION" -c:a copy "$out_path.$OUT_EXTENSION" -loglevel verbose | tee -a "$LOG_FILE"
       fi
 
@@ -53,6 +80,74 @@ while true; do
       # move file
       mkdir -p "$WATCH_DIR/_original"
       mv "$FILE" "$WATCH_DIR/_original/"
+
+    fi
+  done
+  ############### watch dir 2 ##################
+  for FILE in "$WATCH_DIR2"/*; do
+    if [[ -f "$FILE" ]]; then
+
+      filename=$(basename "$FILE")
+      in_basename="${filename%.*}"
+      out_basename="${in_basename}_encoded_${PRESET_NAME2}"
+
+      echo "$(date) - Processing file: $FILE" | tee -a "$LOG_FILE2"
+      #echo "Input file basename: $in_basename"
+      #echo "Output file basename: $out_basename"
+      out_path="${OUTPUT_DIR2}/${out_basename}.${OUT_EXTENSION2}"
+
+      #echo "Output path: $out_path"
+
+      # Check if the input file has an audio stream
+      AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
+
+      # If audio stream exists remove audio and encode video
+      if [ -n "$AUDIO_STREAM" ]; then
+        ffmpeg -i "$FILE" -an -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" "$out_path.$OUT_EXTENSION2" -loglevel verbose | tee -a "$LOG_FILE2"
+      else
+        # If no audio stream, just encode the video stream
+        ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" -c:a copy "$out_path.$OUT_EXTENSION2" -loglevel verbose | tee -a "$LOG_FILE2"
+      fi
+
+      echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE2"
+
+      # move file
+      mkdir -p "$WATCH_DIR2/_original"
+      mv "$FILE" "$WATCH_DIR2/_original/"
+
+    fi
+  done
+    ############### watch dir 3 ##################
+  for FILE in "$WATCH_DIR3"/*; do
+    if [[ -f "$FILE" ]]; then
+
+      filename=$(basename "$FILE")
+      in_basename="${filename%.*}"
+      out_basename="${in_basename}_encoded_${PRESET_NAME3}"
+
+      echo "$(date) - Processing file: $FILE" | tee -a "$LOG_FILE3"
+      #echo "Input file basename: $in_basename"
+      #echo "Output file basename: $out_basename"
+      out_path="${OUTPUT_DIR3}/${out_basename}.${OUT_EXTENSION3}"
+
+      #echo "Output path: $out_path"
+
+      # Check if the input file has an audio stream
+      AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
+
+      # If audio stream exists, normalize audio and remove video stream
+      if [ -n "$AUDIO_STREAM" ]; then
+         /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION3" -vn -c:a "$AUDIO_CODEC3" -b:a "$AUDIO_BITRATE3" -nt "$STANDARD3" -t "$TARGET_LOUDNESS3" --dual-mono -ar "$SAMPLE_RATE3" -v | tee -a "$LOG_FILE3"
+      else
+        # If no audio stream, log it and move file
+        echo "No audio stream found, can't output normalized audio file." | tee -a "$LOG_FILE3"
+      fi
+
+      echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE3"
+
+      # move file
+      mkdir -p "$WATCH_DIR3/_original"
+      mv "$FILE" "$WATCH_DIR3/_original/"
 
     fi
   done
