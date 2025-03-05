@@ -7,4 +7,4 @@ services:
       - e:\FTP\_encode\_output\:/watch
       - e:\FTP\_encode\NORMALIZE\EBU_OUT\:/output
       - e:\FTP\_encode\NORMALIZE\logs\:/logs
-    restart: always
+    restart: unless-stopped

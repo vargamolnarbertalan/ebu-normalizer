@@ -2,7 +2,7 @@
 FROM python:3.11-slim
 
 # Install system dependencies
-RUN apt update && apt install -y ffmpeg inotify-tools
+RUN apt update && apt install -y ffmpeg
 
 # Install ffmpeg-normalize inside a virtual environment
 RUN python3 -m venv /app/venv && \

@@ -4,6 +4,14 @@ WATCH_DIR="/watch"
 OUTPUT_DIR="/output"
 LOG_FILE="/logs/normalization.log"
 
+PRESET_NAME="EBU"
+TARGET_LOUDNESS="-25"
+OUT_EXTENSION="mp4"
+AUDIO_BITRATE="256k"
+STANDARD="ebu"
+SAMPLE_RATE="48000"
+AUDIO_CODEC="aac"
+
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -12,30 +20,27 @@ echo "$(date) - Watching directory: $WATCH_DIR for new files..." | tee -a "$LOG_
 while true; do
   for FILE in "$WATCH_DIR"/*; do
     if [[ -f "$FILE" ]]; then
-      EXT="${FILE##*.}"
-      BASENAME=$(basename "$FILE")
+
+      filename=$(basename "$FILE")
+      in_basename="${filename%.*}"
+      out_basename="${in_basename}_encoded_${PRESET_NAME}"
 
       echo "$(date) - Processing file: $FILE" | tee -a "$LOG_FILE"
+      #echo "Input file basename: $in_basename"
+      #echo "Output file basename: $out_basename"
+      out_path="${OUTPUT_DIR}/${out_basename}.${OUT_EXTENSION}"
 
-      /app/venv/bin/ffmpeg-normalize "$FILE" \
-        -o "$OUTPUT_DIR/$BASENAME" \
-        -ext "$EXT" \
-        -c:v copy -c:a aac -b:a 256k \
-        -nt ebu -t -25 --dual-mono -ar 48000 \
-        | tee -a "$LOG_FILE"
+      #echo "Output path: $out_path"
 
+      /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -c:v copy -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -d -v | tee -a "$LOG_FILE"
 
       echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE"
 
-
-        # Optional: Remove processed file after it's handled, with check
-        if [ -f "$FILE" ]; then
-        rm "$FILE"
-        else
-        echo "File not found: $FILE"
-        fi
+      # move file
+      mkdir -p "$WATCH_DIR/_original"
+      mv "$FILE" "$WATCH_DIR/_original/"
 
     fi
   done
-  sleep 5  # Wait 5 seconds before checking again
+  sleep 5 # Wait 5 seconds before checking again
 done
