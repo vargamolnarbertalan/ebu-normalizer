@@ -1,16 +1,16 @@
 #!/bin/bash
+source config.env
 
-WATCH_DIR="/watch"
-OUTPUT_DIR="/output"
-LOG_FILE="/logs/normalization.log"
-
-PRESET_NAME="EBU"
-TARGET_LOUDNESS="-25"
-OUT_EXTENSION="mp4"
-AUDIO_BITRATE="256k"
-STANDARD="ebu"
-SAMPLE_RATE="48000"
-AUDIO_CODEC="aac"
+WATCH_DIR=$(echo -n "$WATCH_DIR" | tr -d '\r')
+OUTPUT_DIR=$(echo -n "$OUTPUT_DIR" | tr -d '\r')
+LOG_FILE=$(echo -n "$LOG_FILE" | tr -d '\r')
+PRESET_NAME=$(echo -n "$PRESET_NAME" | tr -d '\r')
+TARGET_LOUDNESS=$(echo -n "$TARGET_LOUDNESS" | tr -d '\r')
+OUT_EXTENSION=$(echo -n "$OUT_EXTENSION" | tr -d '\r')
+AUDIO_BITRATE=$(echo -n "$AUDIO_BITRATE" | tr -d '\r')
+STANDARD=$(echo -n "$STANDARD" | tr -d '\r')
+SAMPLE_RATE=$(echo -n "$SAMPLE_RATE" | tr -d '\r')
+AUDIO_CODEC=$(echo -n "$AUDIO_CODEC" | tr -d '\r')
 
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$(dirname "$LOG_FILE")"

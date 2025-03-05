@@ -14,6 +14,8 @@ WORKDIR /app
 # Copy the watch folder script
 COPY watch-folder.sh /app/
 
+COPY config.env /app/
+
 # Give execution permissions to the script
 RUN chmod +x /app/watch-folder.sh
 
