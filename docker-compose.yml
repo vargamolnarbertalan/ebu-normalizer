@@ -1,8 +1,10 @@
-version: "3.8"
 services:
   normalizer:
     build: .
     container_name: audio-normalizer
+    ports:
+      - "4980:4980"
+      - "4981:4981"
     volumes:
       - e:\FTP\_normalizer\watch_ebu_mp4\:/watch
       - e:\FTP\_normalizer\watch_mute_mp4\:/watch2

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Live Logs</title>
+</head>
+<body>
+  <pre id="logOutput"></pre>
+  <script>
+    const ws = new WebSocket("ws://localhost:4981");
+    ws.onmessage = (event) => {
+      document.getElementById("logOutput").innerText += event.data + "\n";
+    };
+  </script>
+</body>
+</html>
