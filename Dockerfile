@@ -1,10 +1,10 @@
 # Use a lightweight Python base image
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 ENV TZ="Europe/Budapest"
 
 # Install system dependencies
-RUN apt update && apt install -y ffmpeg
+RUN apt update && apt install -y ffmpeg bash
 
 # Install ffmpeg-normalize inside a virtual environment
 RUN python3 -m venv /app/venv && \
@@ -33,4 +33,4 @@ EXPOSE 4980 4981
 
 # Start the watcher script on container launch
 CMD ["/app/watch-folder.sh"]
-#CMD ["echo", "hello"]
+#CMD ["sh", "-c", "while true; do echo hello; sleep 1; done"]
