@@ -1,50 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Live Server Logs</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Consolas, monospace;
-      background-color: #1e1e1e;
-      color: #d4d4d4;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Live Server Logs</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Consolas, monospace;
+        background-color: #1e1e1e;
+        color: #d4d4d4;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
 
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 1rem;
-      font-size: 1.5rem;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
+      header {
+        background-color: #333;
+        color: #fff;
+        padding: 1rem;
+        font-size: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
 
-    #logOutput {
-      flex: 1;
-      padding: 1rem;
-      white-space: pre-wrap;
-      overflow-y: auto;
-      background-color: #1e1e1e;
-      color: #dcdcdc;
-    }
-  </style>
-</head>
-<body>
-  <header>Live Server Logs</header>
-  <pre id="logOutput"></pre>
+      #logOutput {
+        flex: 1;
+        padding: 1rem;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        background-color: #1e1e1e;
+        color: #dcdcdc;
+      }
+    </style>
+  </head>
+  <body>
+    <header>Live Server Logs</header>
+    <pre id="logOutput"></pre>
 
-  <script>
-    const ws = new WebSocket("ws://localhost:4981");
-    ws.onmessage = (event) => {
-      const logOutput = document.getElementById("logOutput");
-      logOutput.innerText += event.data + "\n";
-      logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to bottom
-    };
-  </script>
-</body>
+    <script>
+      const protocol = location.protocol === "https:" ? "wss" : "ws";
+      const host = location.hostname;
+      const port = 443;
+      const wsUrl = `${protocol}://${host}:${port}/ws`;
+
+      console.log("Connecting to WebSocket at:", wsUrl);
+
+      const ws = new WebSocket(wsUrl);
+
+      ws.onmessage = (event) => {
+        const logOutput = document.getElementById("logOutput");
+        logOutput.innerText += event.data + "\n";
+        logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to bottom
+      };
+    </script>
+  </body>
 </html>
