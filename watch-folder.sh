@@ -31,13 +31,15 @@ check_extension() {
   [[ "$extension_lower" =~ ^($ALLOWED_INPUT_FORMATS)$ ]] && return 0 || return 1
 }
 
+mkdir -p "$WATCH_DIR"
+mkdir -p "$WATCH_DIR2"
+mkdir -p "$WATCH_DIR3"
 mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR2"
+mkdir -p "$OUTPUT_DIR3"
 mkdir -p "$(dirname "$LOG_FILE")"
 mkdir -p "$(dirname "$LOG_FILE2")"
 mkdir -p "$(dirname "$LOG_FILE3")"
-
-#websocat -t ws-l:0.0.0.0:4981 -E broadcast:mirror: &
-#python3 -m http.server 443 &
 
 echo "$(date) - Watching directory: $WATCH_DIR for new files..." | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
 echo "$(date) - Watching directory: $WATCH_DIR2 for new files..." | tee -a "$LOG_FILE2" | websocat -1 ws://localhost:443/ws
@@ -75,8 +77,8 @@ while true; do
         echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
 
         # move file
-        mkdir -p "$WATCH_DIR/_original"
-        mv "$FILE" "$WATCH_DIR/_original/"
+        mkdir -p "$WATCH_DIR/Source"
+        mv "$FILE" "$WATCH_DIR/Source/"
       else
         echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         continue # Skip this file and check again later
@@ -85,8 +87,8 @@ while true; do
       if [[ -f "$FILE" ]]; then
         echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         # move file
-        mkdir -p "$WATCH_DIR/_original"
-        mv "$FILE" "$WATCH_DIR/_original/"
+        mkdir -p "$WATCH_DIR/Source"
+        mv "$FILE" "$WATCH_DIR/Source/"
       fi
     fi
   done
@@ -121,8 +123,8 @@ while true; do
         echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE2" | websocat -1 ws://localhost:443/ws
 
         # move file
-        mkdir -p "$WATCH_DIR2/_original"
-        mv "$FILE" "$WATCH_DIR2/_original/"
+        mkdir -p "$WATCH_DIR2/Source"
+        mv "$FILE" "$WATCH_DIR2/Source/"
       else
         echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         continue # Skip this file and check again later
@@ -131,8 +133,8 @@ while true; do
       if [[ -f "$FILE" ]]; then
         echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         # move file
-        mkdir -p "$WATCH_DIR2/_original"
-        mv "$FILE" "$WATCH_DIR2/_original/"
+        mkdir -p "$WATCH_DIR2/Source"
+        mv "$FILE" "$WATCH_DIR2/Source/"
       fi
     fi
   done
@@ -167,8 +169,8 @@ while true; do
         echo "$(date) - Finished processing: $FILE" | tee -a "$LOG_FILE3" | websocat -1 ws://localhost:443/ws
 
         # move file
-        mkdir -p "$WATCH_DIR3/_original"
-        mv "$FILE" "$WATCH_DIR3/_original/"
+        mkdir -p "$WATCH_DIR3/Source"
+        mv "$FILE" "$WATCH_DIR3/Source/"
       else
         echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         continue # Skip this file and check again later
@@ -177,8 +179,8 @@ while true; do
       if [[ -f "$FILE" ]]; then
         echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE" | websocat -1 ws://localhost:443/ws
         # move file
-        mkdir -p "$WATCH_DIR3/_original"
-        mv "$FILE" "$WATCH_DIR3/_original/"
+        mkdir -p "$WATCH_DIR3/Source"
+        mv "$FILE" "$WATCH_DIR3/Source/"
       fi
     fi
   done

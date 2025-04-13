@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # Set environment variables
 ENV TZ=Europe/Budapest \ 
     WATCH_DIR=/watch \
-    OUTPUT_DIR=/output \
+    OUTPUT_DIR=/watch/Output \
     LOG_FILE=/logs/normalization.log \
     PRESET_NAME=EBU \
     TARGET_LOUDNESS=-25 \
@@ -18,7 +18,7 @@ ENV TZ=Europe/Budapest \
     FRAME_RATE=60000/1001 \
     RESOLUTION=1920x1080 \
     WATCH_DIR2=/watch2 \
-    OUTPUT_DIR2=/output \
+    OUTPUT_DIR2=/watch2/Output \
     LOG_FILE2=/logs/normalization2.log \
     PRESET_NAME2=MUTE \
     OUT_EXTENSION2=mp4 \
@@ -27,7 +27,7 @@ ENV TZ=Europe/Budapest \
     FRAME_RATE2=60000/1001 \
     RESOLUTION2=1920x1080 \
     WATCH_DIR3=/watch3 \
-    OUTPUT_DIR3=/output \
+    OUTPUT_DIR3=/watch3/Output \
     LOG_FILE3=/logs/normalization3.log \
     PRESET_NAME3=audioEBU \
     TARGET_LOUDNESS3=-25 \
