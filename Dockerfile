@@ -64,6 +64,8 @@ RUN chmod +x /app/watch-folder.sh
 
 RUN chmod +x /app/server.py
 
+RUN chmod +x /usr/local/bin/websocat
+
 #RUN websocat -s 4981 &
 
 #RUN python3 -m http.server 443 &
