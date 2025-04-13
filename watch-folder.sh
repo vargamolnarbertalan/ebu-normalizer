@@ -67,8 +67,9 @@ is_file_complete() {
 check_extension() {
   filename="$1"
   extension="${filename##*.}"
-  echo "#### extension: $extension ####" | websocat ws://0.0.0.0:4981
-  [[ "$extension" =~ ^($ALLOWED_INPUT_FORMATS)$ ]] && return 0 || return 1
+  extension_lower=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
+  echo "#### extension: $extension_lower ####" | websocat ws://0.0.0.0:4981
+  [[ "$extension_lower" =~ ^($ALLOWED_INPUT_FORMATS)$ ]] && return 0 || return 1
 }
 
 mkdir -p "$OUTPUT_DIR"
