@@ -48,7 +48,7 @@ RUN pip install aiohttp
 WORKDIR /app
 
 # Copy needed files
-COPY watch-folder.sh index.html encode.log server.py /app/
+COPY watch-folder.sh index.html encode.log server.py start.sh /app/
 
 # Give execution permissions to the script
 RUN chmod +rx /app/*
@@ -56,4 +56,4 @@ RUN chmod +rx /app/*
 EXPOSE 80
 
 # Start the http server and the watcher script on container launch
-CMD ["python3", "-u", "server.py"]
+ENTRYPOINT [ "./start.sh" ]

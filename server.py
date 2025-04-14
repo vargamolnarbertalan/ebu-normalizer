@@ -35,6 +35,6 @@ port = 80
 print(f"Starting server at http://{host}:{port}/")
 
 loop = asyncio.get_event_loop()
-loop.run_in_executor(None, start_shell_script)
+#loop.run_in_executor(None, start_shell_script)
 
 web.run_app(app, host=host, port=port)
