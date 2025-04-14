@@ -3,11 +3,10 @@ services:
     build: .
     container_name: audio-normalizer
     ports:
-      - "4980:443"
+      - "4980:80"
     volumes:
       - e:\FTP\_normalizer\watch_ebu_mp4\:/watch
       - e:\FTP\_normalizer\watch_mute_mp4\:/watch2
       - e:\FTP\_normalizer\watch_ebu_mp3\:/watch3
       - e:\FTP\_normalizer\_output\:/output
-      - e:\FTP\_normalizer\_logs\:/logs
     restart: unless-stopped

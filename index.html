@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <meta charset="UTF-8" />
     <title>Live Server Logs</title>
     <style>
@@ -36,23 +37,12 @@
   </head>
   <body>
     <header>Live Server Logs</header>
-    <pre id="logOutput"></pre>
+    <div id="logOutput"></div>
 
-    <script>
-      const protocol = location.protocol === "https:" ? "wss" : "ws";
-      const host = location.hostname;
-      const port = 443;
-      const wsUrl = `${protocol}://${host}:${port}/ws`;
-
-      console.log("Connecting to WebSocket at:", wsUrl);
-
-      const ws = new WebSocket(wsUrl);
-
-      ws.onmessage = (event) => {
-        const logOutput = document.getElementById("logOutput");
-        logOutput.innerText += event.data + "\n";
-        logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll to bottom
-      };
+    <script type="text/javascript">
+      setInterval(() => {
+        $("#logOutput").load("/encode.log");
+      }, 1000);
     </script>
   </body>
 </html>
