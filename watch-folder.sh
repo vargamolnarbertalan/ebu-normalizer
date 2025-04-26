@@ -54,7 +54,7 @@ while true; do
         in_basename="${filename%.*}"
         out_basename="${in_basename}_encoded_${PRESET_NAME}"
 
-        echo "$(date) - Processing file: $FILE via $PRESET_NAME preset" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Processing file: $FILE via $PRESET_NAME preset ##########" | tee -a "$LOG_FILE"
         out_path="${OUTPUT_DIR}/${out_basename}.${OUT_EXTENSION}"
 
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
@@ -65,16 +65,16 @@ while true; do
           ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER" -b:v "$VIDEO_BITRATE" -r "$FRAME_RATE" -s "$RESOLUTION" -c:a copy "$out_path" -loglevel verbose 2>&1 | tee -a "$LOG_FILE"
         fi
 
-        echo "$(date) - Finished processing: $out_path" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR/Source"
         mv "$FILE" "$WATCH_DIR/Source/"
       else
-        echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - File is still being written: $FILE ##########" | tee -a "$LOG_FILE"
         continue
       fi
     else
       if [[ -f "$FILE" ]]; then
-        echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR/Source"
         mv "$FILE" "$WATCH_DIR/Source/"
       fi
@@ -89,7 +89,7 @@ while true; do
         in_basename="${filename%.*}"
         out_basename="${in_basename}_encoded_${PRESET_NAME2}"
 
-        echo "$(date) - Processing file: $FILE via $PRESET_NAME2 preset" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Processing file: $FILE via $PRESET_NAME2 preset ##########" | tee -a "$LOG_FILE"
         out_path="${OUTPUT_DIR2}/${out_basename}.${OUT_EXTENSION2}"
 
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
@@ -100,16 +100,16 @@ while true; do
           ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" -c:a copy "$out_path" -loglevel verbose 2>&1 | tee -a "$LOG_FILE"
         fi
 
-        echo "$(date) - Finished processing: $out_path" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR2/Source"
         mv "$FILE" "$WATCH_DIR2/Source/"
       else
-        echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - File is still being written: $FILE ##########" | tee -a "$LOG_FILE"
         continue
       fi
     else
       if [[ -f "$FILE" ]]; then
-        echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR2/Source"
         mv "$FILE" "$WATCH_DIR2/Source/"
       fi
@@ -124,7 +124,7 @@ while true; do
         in_basename="${filename%.*}"
         out_basename="${in_basename}_encoded_${PRESET_NAME3}"
 
-        echo "$(date) - Processing file: $FILE via $PRESET_NAME3 preset" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Processing file: $FILE via $PRESET_NAME3 preset ##########" | tee -a "$LOG_FILE"
         out_path="${OUTPUT_DIR3}/${out_basename}.${OUT_EXTENSION3}"
 
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
@@ -132,19 +132,19 @@ while true; do
         if [ -n "$AUDIO_STREAM" ]; then
           /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION3" -vn -c:a "$AUDIO_CODEC3" -b:a "$AUDIO_BITRATE3" -nt "$STANDARD3" -t "$TARGET_LOUDNESS3" --dual-mono -ar "$SAMPLE_RATE3" -v 2>&1 | tee -a "$LOG_FILE"
         else
-          echo "No audio stream found, can't output normalized audio file." | tee -a "$LOG_FILE"
+          echo "########## $(date) - No audio stream found, can't output normalized audio file. ##########" | tee -a "$LOG_FILE"
         fi
 
-        echo "$(date) - Finished processing: $out_path" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR3/Source"
         mv "$FILE" "$WATCH_DIR3/Source/"
       else
-        echo "$(date) - File is still being written: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - File is still being written: $FILE ##########" | tee -a "$LOG_FILE"
         continue
       fi
     else
       if [[ -f "$FILE" ]]; then
-        echo "$(date) - Not supported input format: $FILE" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR3/Source"
         mv "$FILE" "$WATCH_DIR3/Source/"
       fi
