@@ -45,20 +45,25 @@
 
     <script type="text/javascript">
       function highlightImportantLines() {
-        const logOutput = document.getElementById("logOutput");
-        const lines = logOutput.innerHTML.split("<br>");
-        const highlightedLines = lines.map((line) => {
+        var $logOutput = $("#logOutput");
+        var content = $logOutput.text();
+        var lines = content.split("\n");
+
+        var highlightedLines = $.map(lines, function (line) {
           if (line.includes("##########")) {
-            return `<span class="highlight">${line}</span>`;
+            return '<span class="highlight">' + line + "</span>";
+          } else {
+            return line;
           }
-          return line;
         });
-        logOutput.innerHTML = highlightedLines.join("<br>");
+
+        $logOutput.html(highlightedLines.join("<br>"));
       }
 
       setInterval(() => {
-        $("#logOutput").load("/encode.log");
-        highlightImportantLines();
+        $("#logOutput").load("/encode.log", function () {
+          highlightImportantLines();
+        });
       }, 250);
     </script>
   </body>
