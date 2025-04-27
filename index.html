@@ -44,6 +44,7 @@
     <div id="logOutput"></div>
 
     <script type="text/javascript">
+      var prevContent = $("#logOutput").html();
       function highlightImportantLines() {
         var $logOutput = $("#logOutput");
         var content = $logOutput.text();
@@ -60,11 +61,27 @@
         $logOutput.html(highlightedLines.join("<br>"));
       }
 
+      function scrollToBottom() {
+        var $logOutput = $("#logOutput");
+        $logOutput.scrollTop($logOutput[0].scrollHeight);
+      }
+
+      function contentChanged() {
+        if (prevContent != $("#logOutput").html()) {
+          return true;
+        }
+        return false;
+      }
+
       setInterval(() => {
         $("#logOutput").load("/encode.log", function () {
           highlightImportantLines();
+          if (contentChanged()) {
+            scrollToBottom();
+          }
+          prevContent = $("#logOutput").html();
         });
-      }, 250);
+      }, 1000);
     </script>
   </body>
 </html>
