@@ -60,9 +60,9 @@ while true; do
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
 
         if [ -n "$AUDIO_STREAM" ]; then
-          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -e="$VIDEO_OPTIONS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v 2>&1 | tee -a "$LOG_FILE"
+          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION" -e="$VIDEO_OPTIONS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -v
         else
-          ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER" -b:v "$VIDEO_BITRATE" -r "$FRAME_RATE" -s "$RESOLUTION" -c:a copy "$out_path" -loglevel verbose 2>&1 | tee -a "$LOG_FILE"
+          ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER" -b:v "$VIDEO_BITRATE" -r "$FRAME_RATE" -s "$RESOLUTION" -c:a copy "$out_path" -loglevel verbose
         fi
 
         echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
@@ -95,9 +95,9 @@ while true; do
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
 
         if [ -n "$AUDIO_STREAM" ]; then
-          ffmpeg -i "$FILE" -an -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" "$out_path" -loglevel verbose 2>&1 | tee -a "$LOG_FILE"
+          ffmpeg -i "$FILE" -an -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" "$out_path" -loglevel verbose
         else
-          ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" -c:a copy "$out_path" -loglevel verbose 2>&1 | tee -a "$LOG_FILE"
+          ffmpeg -i "$FILE" -c:v "$VIDEO_ENCODER2" -b:v "$VIDEO_BITRATE2" -r "$FRAME_RATE2" -s "$RESOLUTION2" -c:a copy "$out_path" -loglevel verbose
         fi
 
         echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
@@ -130,7 +130,7 @@ while true; do
         AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
 
         if [ -n "$AUDIO_STREAM" ]; then
-          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION3" -vn -c:a "$AUDIO_CODEC3" -b:a "$AUDIO_BITRATE3" -nt "$STANDARD3" -t "$TARGET_LOUDNESS3" --dual-mono -ar "$SAMPLE_RATE3" -v 2>&1 | tee -a "$LOG_FILE"
+          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$OUT_EXTENSION3" -vn -c:a "$AUDIO_CODEC3" -b:a "$AUDIO_BITRATE3" -nt "$STANDARD3" -t "$TARGET_LOUDNESS3" --dual-mono -ar "$SAMPLE_RATE3" -v
         else
           echo "########## $(date) - No audio stream found, can't output normalized audio file. ##########" | tee -a "$LOG_FILE"
         fi
