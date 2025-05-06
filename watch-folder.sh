@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s ${RESOLUTION}"
+
 is_file_complete() {
   local file="$1"
   local prev_size=0
