@@ -1,40 +1,36 @@
 from aiohttp import web
 import asyncio
-import subprocess
+import os
 
 async def index(request):
     return web.FileResponse('index.html')  # Serve the HTML file
 
-def start_shell_script():
-    print("Starting the watch-folder.sh script...")
-    process = subprocess.Popen(
-        ["bash", "watch-folder.sh"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    for line in iter(process.stdout.readline, ''):
-        print(line.strip())
-    for line in iter(process.stderr.readline, ''):
-        print(line.strip())
-    process.stdout.close()
-    process.stderr.close()
-    process.wait()
+async def get_new_log(request):
+    log_file = 'encode.log'
+    if os.path.exists(log_file):
+        try:
+            with open(log_file, 'r') as f:
+                content = f.read()
+            return web.Response(text=content)
+        except Exception as e:
+            return web.Response(text=f"Error reading log file: {e}", status=500)
+    else:
+        return web.Response(text="Log file not found.", status=404)
 
 app = web.Application()
 
 # Serve index.html at root
 app.router.add_get('/', index)
 
-# 🔥 Serve static files from the current directory
+# Serve /getNewLog path
+app.router.add_get('/getNewLog', get_new_log)
+
+# Serve static files from the current directory
 app.router.add_static('/', path='.', show_index=True)
 
 host = '0.0.0.0'
 port = 80
 
 print(f"Starting server at http://{host}:{port}/")
-
-loop = asyncio.get_event_loop()
-#loop.run_in_executor(None, start_shell_script)
 
 web.run_app(app, host=host, port=port)

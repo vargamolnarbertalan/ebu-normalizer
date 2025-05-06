@@ -1,87 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <meta charset="UTF-8" />
-    <title>Live Server Logs</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: Consolas, monospace;
-        background-color: #1e1e1e;
-        color: #d4d4d4;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
+<script type="text/javascript">
+  var prevContent = $("#logOutput").html();
+
+  function highlightImportantLines() {
+    var $logOutput = $("#logOutput");
+    var content = $logOutput.text();
+    var lines = content.split("\n");
+
+    var highlightedLines = $.map(lines, function (line) {
+      if (line.includes("##########")) {
+        return '<span class="highlight">' + line + "</span>";
+      } else {
+        return line;
       }
+    });
 
-      header {
-        background-color: #333;
-        color: #fff;
-        padding: 1rem;
-        font-size: 1.5rem;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    $logOutput.html(highlightedLines.join("<br>"));
+  }
+
+  function scrollToBottom() {
+    var $logOutput = $("#logOutput");
+    $logOutput.scrollTop($logOutput[0].scrollHeight);
+  }
+
+  function contentChanged(newContent) {
+    return prevContent !== newContent;
+  }
+
+  setInterval(() => {
+    $.get("/getNewLog", function (data) {
+      if (contentChanged(data)) {
+        $("#logOutput").text(data);
+        highlightImportantLines();
+        scrollToBottom();
+        prevContent = data;
       }
-
-      #logOutput {
-        flex: 1;
-        padding: 1rem;
-        white-space: pre-wrap;
-        overflow-y: auto;
-        background-color: #1e1e1e;
-        color: #dcdcdc;
-      }
-      .highlight {
-        color: black;
-        background-color: white;
-      }
-    </style>
-  </head>
-  <body>
-    <header>Live Server Logs</header>
-    <div id="logOutput"></div>
-
-    <script type="text/javascript">
-      var prevContent = $("#logOutput").html();
-      function highlightImportantLines() {
-        var $logOutput = $("#logOutput");
-        var content = $logOutput.text();
-        var lines = content.split("\n");
-
-        var highlightedLines = $.map(lines, function (line) {
-          if (line.includes("##########")) {
-            return '<span class="highlight">' + line + "</span>";
-          } else {
-            return line;
-          }
-        });
-
-        $logOutput.html(highlightedLines.join("<br>"));
-      }
-
-      function scrollToBottom() {
-        var $logOutput = $("#logOutput");
-        $logOutput.scrollTop($logOutput[0].scrollHeight);
-      }
-
-      function contentChanged() {
-        if (prevContent != $("#logOutput").html()) {
-          return true;
-        }
-        return false;
-      }
-
-      setInterval(() => {
-        $("#logOutput").load("/encode.log", function () {
-          highlightImportantLines();
-          if (contentChanged()) {
-            scrollToBottom();
-          }
-          prevContent = $("#logOutput").html();
-        });
-      }, 1000);
-    </script>
-  </body>
-</html>
+    }).fail(function () {
+      $("#logOutput").text("Failed to load log data.");
+    });
+  }, 1000);
+</script>
