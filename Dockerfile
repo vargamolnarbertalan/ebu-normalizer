@@ -36,13 +36,27 @@ ENV TZ=Europe/Budapest \
     ALLOWED_INPUT_FORMATS=mp4|webm|flv|ogg|gif|wmv|mts|m2ts|ts|m4v|mpg|mpeg|m4v|3gp|mxf|mkv|avi|mov|wav|aac|aiff|flac|mp3|mogg|wma
 
 # Install system dependencies
-RUN apt update && apt install -y ffmpeg bash
+RUN apk add --no-cache \
+    bash \
+    ffmpeg \
+    tzdata \
+    libstdc++ \
+    gcc \
+    musl-dev \
+    python3-dev \
+    libffi-dev \
+    openssl-dev
 
-# Install ffmpeg-normalize inside a virtual environment
+# Set timezone
+RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
+
+# Create virtual environment and install Python packages
 RUN python3 -m venv /app/venv && \
-    /app/venv/bin/pip install --no-cache-dir ffmpeg-normalize
+    /app/venv/bin/pip install --no-cache-dir --upgrade pip && \
+    /app/venv/bin/pip install ffmpeg-normalize
 
-RUN pip install aiohttp
+# Install aiohttp globally
+RUN pip install --no-cache-dir aiohttp
 
 # Set up working directory
 WORKDIR /app
@@ -51,9 +65,9 @@ WORKDIR /app
 COPY watch-folder.sh index.html encode.log server.py start.sh /app/
 
 # Give execution permissions to the script
-RUN chmod +rx /app/*
+RUN chmod +x /app/*
 
 EXPOSE 80
 
 # Start the http server and the watcher script on container launch
-ENTRYPOINT [ "./start.sh" ]
+ENTRYPOINT ["./start.sh"]
