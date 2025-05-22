@@ -5,25 +5,33 @@ VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s $
 is_file_complete() {
   local file="$1"
   local prev_size=0
-  local curr_size=1
+  local curr_size=0
+  local stable_count=0
+  local required_stable_count=3  # Number of stable checks before considering file complete
 
-  # Wait until the file size stops changing
-  while [[ "$prev_size" -ne "$curr_size" ]]; do
-    prev_size="$curr_size"
-    sleep 2 # Adjust delay if needed
+  while true; do
+    if [[ ! -f "$file" ]]; then
+      return 1 # File no longer exists
+    fi
+
     curr_size=$(stat -c%s "$file" 2>/dev/null || echo 0)
 
-    # If file disappears (deleted or moved), return false
-    [[ "$curr_size" -eq 0 ]] && return 1
+    if [[ "$curr_size" -eq "$prev_size" ]]; then
+      ((stable_count++))
+    else
+      stable_count=0
+    fi
+
+    # File has been stable long enough
+    if [[ "$stable_count" -ge "$required_stable_count" ]]; then
+      return 0
+    fi
+
+    prev_size="$curr_size"
+    sleep 2
   done
-
-  # Check if file is still open by another process
-  if lsof "$file" >/dev/null 2>&1; then
-    return 1 # File is still in use
-  fi
-
-  return 0 # File is ready
 }
+
 
 check_extension() {
   filename="$1"
