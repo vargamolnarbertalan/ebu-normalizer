@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s ${RESOLUTION}"
+VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -s ${RESOLUTION} -vf scale=w=1920:h=1080:force_original_aspect_ratio=decrease"
 
 is_file_complete() {
   local file="$1"
