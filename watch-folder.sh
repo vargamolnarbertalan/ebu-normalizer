@@ -3,6 +3,16 @@
 VIDEO_OPTIONS="-c:v ${VIDEO_ENCODER} -b:v ${VIDEO_BITRATE} -r ${FRAME_RATE} -vf scale=w=${WIDTH}:h=${HEIGHT}:force_original_aspect_ratio=decrease"
 VIDEO_OPTIONS2="-c:v ${VIDEO_ENCODER2} -b:v ${VIDEO_BITRATE2} -r ${FRAME_RATE2} -vf scale=w=${WIDTH2}:h=${HEIGHT2}:force_original_aspect_ratio=decrease"
 
+is_temp_file() {
+  local file="$1"
+  case "$file" in
+    *.crdownload|*.part|*.download|*.opdownload|*.tmp|*.temp|*.~|*~|*.swp|*.swo|*.bak|*.filepart|*.partial|*.downloading|*.incomplete)
+      return 0 ;;  # It's a temp file
+    *)
+      return 1 ;;  # It's safe to process
+  esac
+}
+
 is_file_complete() {
   local file="$1"
   local prev_size=0
@@ -59,7 +69,7 @@ echo "$(date) - Watching directory: $WATCH_DIR3 for new files..." | tee -a "$LOG
 while true; do
   ############### watch dir 1 ##################
   for FILE in "$WATCH_DIR"/*; do
-    if [[ -f "$FILE" ]] && check_extension "$FILE"; then
+    if [[ -f "$FILE" ]] && ! is_temp_file "$FILE" && check_extension "$FILE"; then
       if is_file_complete "$FILE"; then
         filename=$(basename "$FILE")
         in_basename="${filename%.*}"
@@ -84,7 +94,7 @@ while true; do
         continue
       fi
     else
-      if [[ -f "$FILE" ]]; then
+      if [[ -f "$FILE" ]] && ! is_temp_file "$FILE"; then
         echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR/Source"
         mv "$FILE" "$WATCH_DIR/Source/"
@@ -94,7 +104,7 @@ while true; do
 
   ############### watch dir 2 ##################
   for FILE in "$WATCH_DIR2"/*; do
-    if [[ -f "$FILE" ]] && check_extension "$FILE"; then
+    if [[ -f "$FILE" ]] && ! is_temp_file "$FILE" && check_extension "$FILE"; then
       if is_file_complete "$FILE"; then
         filename=$(basename "$FILE")
         in_basename="${filename%.*}"
@@ -119,7 +129,7 @@ while true; do
         continue
       fi
     else
-      if [[ -f "$FILE" ]]; then
+      if [[ -f "$FILE" ]] && ! is_temp_file "$FILE"; then
         echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR2/Source"
         mv "$FILE" "$WATCH_DIR2/Source/"
@@ -129,7 +139,7 @@ while true; do
 
   ############### watch dir 3 ##################
   for FILE in "$WATCH_DIR3"/*; do
-    if [[ -f "$FILE" ]] && check_extension "$FILE"; then
+    if [[ -f "$FILE" ]] && ! is_temp_file "$FILE" && check_extension "$FILE"; then
       if is_file_complete "$FILE"; then
         filename=$(basename "$FILE")
         in_basename="${filename%.*}"
@@ -154,7 +164,7 @@ while true; do
         continue
       fi
     else
-      if [[ -f "$FILE" ]]; then
+      if [[ -f "$FILE" ]] && ! is_temp_file "$FILE"; then
         echo "########## $(date) - Not supported input format: $FILE ##########" | tee -a "$LOG_FILE"
         mkdir -p "$WATCH_DIR3/Source"
         mv "$FILE" "$WATCH_DIR3/Source/"
