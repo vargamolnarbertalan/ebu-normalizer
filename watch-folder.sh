@@ -81,15 +81,31 @@ process_watch_dir() {
       echo "########## $(date) - Processing file: $FILE via $PRESET preset ##########" | tee -a "$LOG_FILE"
 
       AUDIO_STREAM=$(ffprobe -v error -select_streams a -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
+      VIDEO_STREAM=$(ffprobe -v error -select_streams v -show_entries stream=index -of default=noprint_wrappers=1:nokey=1 "$FILE")
 
-      if [[ "$USE_NORMALIZE" == "true" && -n "$AUDIO_STREAM" ]]; then
-        /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$EXT" -e="$VIDEO_OPTS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -q
-      elif [[ -n "$AUDIO_STREAM" ]]; then
-        ffmpeg -i "$FILE" $VIDEO_OPTS -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" "$out_path" -loglevel fatal
-      elif [[ "$USE_NORMALIZE" != "true" ]]; then
-        ffmpeg -i "$FILE" $VIDEO_OPTS -c:a copy "$out_path" -loglevel fatal
+      if [[ "$USE_NORMALIZE" == "both" ]]; then
+        if [[ -n "$AUDIO_STREAM" && -n "$VIDEO_STREAM" ]]; then
+          #echo "Both audio and video streams exist"
+          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$EXT" -e="$VIDEO_OPTS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -q
+        else
+          echo "########## $(date) - Video or audio stream is missing from file. ##########" | tee -a "$LOG_FILE"
+        fi
+      elif [[ "$USE_NORMALIZE" == "vonly"]]; then
+        if [[ -n "$VIDEO_STREAM" ]]; then
+          #echo "Video stream detected"
+          ffmpeg -i "$FILE" $VIDEO_OPTS -an "$out_path" -loglevel fatal
+        else
+          echo "########## $(date) - Video stream is missing from file. ##########" | tee -a "$LOG_FILE"
+        fi      
+      elif [[ "$USE_NORMALIZE" == "aonly"]]; then
+        if [[ -n "$AUDIO_STREAM" ]]; then
+          #echo "Audio stream detected"
+          /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$EXT" -vn -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -q
+        else
+          echo "########## $(date) - Audio stream is missing from file. ##########" | tee -a "$LOG_FILE"
+        fi
       else
-        echo "########## $(date) - No audio stream found, can't output normalized audio file. ##########" | tee -a "$LOG_FILE"
+        echo "########## $(date) - Invalid preset type/normalization setting. ##########" | tee -a "$LOG_FILE"
       fi
 
       echo "########## $(date) - Finished processing: $out_path ##########" | tee -a "$LOG_FILE"
