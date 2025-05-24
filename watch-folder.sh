@@ -6,8 +6,8 @@ is_temp_file() {
   local file="$1"
   case "$file" in
     *.crdownload|*.part|*.download|*.opdownload|*.tmp|*.temp|*.~|*~|*.swp|*.swo|*.bak|*.filepart|*.partial|*.downloading|*.incomplete)
-      return 0 ;;  # It's a temp file
-    *) return 1 ;; # Safe to process
+      return 0 ;;
+    *) return 1 ;;
   esac
 }
 
@@ -90,14 +90,14 @@ process_watch_dir() {
         else
           echo "########## $(date) - Video or audio stream is missing from file. ##########" | tee -a "$LOG_FILE"
         fi
-      elif [[ "$USE_NORMALIZE" == "vonly"]]; then
+      elif [[ "$USE_NORMALIZE" == "vonly" ]]; then
         if [[ -n "$VIDEO_STREAM" ]]; then
           #echo "Video stream detected"
           ffmpeg -i "$FILE" $VIDEO_OPTS -an "$out_path" -loglevel fatal
         else
           echo "########## $(date) - Video stream is missing from file. ##########" | tee -a "$LOG_FILE"
         fi      
-      elif [[ "$USE_NORMALIZE" == "aonly"]]; then
+      elif [[ "$USE_NORMALIZE" == "aonly" ]]; then
         if [[ -n "$AUDIO_STREAM" ]]; then
           #echo "Audio stream detected"
           /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$EXT" -vn -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -q
