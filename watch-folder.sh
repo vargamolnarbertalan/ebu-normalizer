@@ -59,7 +59,17 @@ process_watch_dir() {
   mkdir -p "$DIR/Source"
 
   for FILE in "$DIR"/*; do
-    [[ ! -f "$FILE" || is_temp_file "$FILE" || ! check_extension "$FILE" ]] && continue
+    if [[ ! -f "$FILE" ]]; then
+      continue
+    fi
+
+    if is_temp_file "$FILE"; then
+      continue
+    fi
+
+    if ! check_extension "$FILE"; then
+      continue
+    fi
 
     if is_file_complete "$FILE"; then
       local filename in_basename out_basename out_path AUDIO_STREAM
@@ -75,7 +85,7 @@ process_watch_dir() {
       if [[ "$USE_NORMALIZE" == "true" && -n "$AUDIO_STREAM" ]]; then
         /app/venv/bin/ffmpeg-normalize "$FILE" -o "$out_path" -ext "$EXT" -e="$VIDEO_OPTS" -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" -nt "$STANDARD" -t "$TARGET_LOUDNESS" --dual-mono -ar "$SAMPLE_RATE" -q
       elif [[ -n "$AUDIO_STREAM" ]]; then
-        ffmpeg -i "$FILE" -an $VIDEO_OPTS "$out_path" -loglevel fatal
+        ffmpeg -i "$FILE" $VIDEO_OPTS -c:a "$AUDIO_CODEC" -b:a "$AUDIO_BITRATE" "$out_path" -loglevel fatal
       elif [[ "$USE_NORMALIZE" != "true" ]]; then
         ffmpeg -i "$FILE" $VIDEO_OPTS -c:a copy "$out_path" -loglevel fatal
       else
@@ -120,35 +130,54 @@ for i in $(seq 1 "$NUM_PROFILES"); do
   width="${!width_var}"
   height="${!height_var}"
 
-  VIDEO_OPTIONS["$i"]="-c:v $encoder -b:v $bitrate -r $fps -vf scale=w=$width:h=$height:force_original_aspect_ratio=decrease"
+  if [[ -n "$encoder" && -n "$bitrate" && -n "$fps" && -n "$width" && -n "$height" ]]; then
+    VIDEO_OPTIONS["$i"]="-c:v $encoder -b:v $bitrate -r $fps -vf scale=w=$width:h=$height:force_original_aspect_ratio=decrease"
+  else
+    VIDEO_OPTIONS["$i"]=""  # Allow audio-only profiles
+  fi
 done
 
-##### SETUP #####
+##### SETUP + CONFIG ARRAYS #####
+
+WATCH_DIRS=()
+OUTPUT_DIRS=()
+PRESETS=()
+OUT_EXTS=()
+VIDEO_OPTS_LIST=()
+AUDIO_CODECS=()
+AUDIO_BITRATES=()
+STANDARDS=()
+LOUDNESSES=()
+SAMPLE_RATES=()
+NORMALIZE_FLAGS=()
 
 for i in $(seq 1 "$NUM_PROFILES"); do
   watch_var="WATCH_DIR$i"
   output_var="OUTPUT_DIR$i"
+  preset_var="PRESET_NAME$i"
+  ext_var="OUT_EXTENSION$i"
+  codec_var="AUDIO_CODEC$i"
+  bitrate_var="AUDIO_BITRATE$i"
+  standard_var="STANDARD$i"
+  loudness_var="TARGET_LOUDNESS$i"
+  rate_var="SAMPLE_RATE$i"
+  normalize_var="NORMALIZE$i"
 
-  watch_dir="${!watch_var}"
-  output_dir="${!output_var}"
+  WATCH_DIRS+=("${!watch_var}")
+  OUTPUT_DIRS+=("${!output_var}")
+  PRESETS+=("${!preset_var}")
+  OUT_EXTS+=("${!ext_var}")
+  VIDEO_OPTS_LIST+=("${VIDEO_OPTIONS[$i]}")
+  AUDIO_CODECS+=("${!codec_var}")
+  AUDIO_BITRATES+=("${!bitrate_var}")
+  STANDARDS+=("${!standard_var}")
+  LOUDNESSES+=("${!loudness_var}")
+  SAMPLE_RATES+=("${!rate_var}")
+  NORMALIZE_FLAGS+=("${!normalize_var}")
 
-  mkdir -p "$watch_dir" "$output_dir"
-  echo "$(date) - Watching directory: $watch_dir for new files..." | tee -a "$LOG_FILE"
+  mkdir -p "${!watch_var}" "${!output_var}"
+  echo "$(date) - Watching directory: ${!watch_var} for new files..." | tee -a "$LOG_FILE"
 done
-
-##### CONFIG ARRAYS #####
-
-WATCH_DIRS=("$WATCH_DIR1" "$WATCH_DIR2" "$WATCH_DIR3" "$WATCH_DIR4" "$WATCH_DIR5")
-OUTPUT_DIRS=("$OUTPUT_DIR1" "$OUTPUT_DIR2" "$OUTPUT_DIR3" "$OUTPUT_DIR4" "$OUTPUT_DIR5")
-PRESETS=("$PRESET_NAME1" "$PRESET_NAME2" "$PRESET_NAME3" "$PRESET_NAME4" "$PRESET_NAME5")
-OUT_EXTS=("$OUT_EXTENSION1" "$OUT_EXTENSION2" "$OUT_EXTENSION3" "$OUT_EXTENSION4" "$OUT_EXTENSION5")
-VIDEO_OPTS_LIST=("$VIDEO_OPTIONS1" "$VIDEO_OPTIONS2" "" "$VIDEO_OPTIONS4" "$VIDEO_OPTIONS5")
-AUDIO_CODECS=("$AUDIO_CODEC1" "" "$AUDIO_CODEC3" "$AUDIO_CODEC4" "")
-AUDIO_BITRATES=("$AUDIO_BITRATE1" "" "$AUDIO_BITRATE3" "$AUDIO_BITRATE4" "")
-STANDARDS=("$STANDARD1" "" "$STANDARD3" "$STANDARD4" "")
-LOUDNESSES=("$TARGET_LOUDNESS1" "" "$TARGET_LOUDNESS3" "$TARGET_LOUDNESS4" "")
-SAMPLE_RATES=("$SAMPLE_RATE1" "" "$SAMPLE_RATE3" "$SAMPLE_RATE4" "")
-NORMALIZE_FLAGS=("true" "false" "true" "true" "false")
 
 ##### MAIN LOOP #####
 
