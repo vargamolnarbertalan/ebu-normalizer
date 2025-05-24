@@ -177,7 +177,7 @@ for i in $(seq 1 "$NUM_PROFILES"); do
   standard_var="STANDARD$i"
   loudness_var="TARGET_LOUDNESS$i"
   rate_var="SAMPLE_RATE$i"
-  normalize_var="NORMALIZE$i"
+  normalize_var="PTYPE$i"
 
   WATCH_DIRS+=("${!watch_var}")
   OUTPUT_DIRS+=("${!output_var}")
